@@ -21,7 +21,7 @@ const Offers = () => {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        <h1>TÍNH CHỈ SỐ BMIBMI</h1>
+        <h1>TÍNH CHỈ SỐ BMI</h1>
         <h1>Ưu đãi dành cho bạn</h1>
         <p>
         Đo chỉ số BMI tại CITIGYM để đánh giá mức độ béo, gầy hoặc cân nặng lý tưởng của bạn.<br />

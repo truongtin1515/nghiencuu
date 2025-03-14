@@ -6,16 +6,19 @@ import Link from 'next/link';
 import logo from '../components/Assets/logo.png'
 import cart_icon from '../components/Assets/cart_icon.png'; 
 import './Navbar.css'; 
-
+import { faDumbbell } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const Navbar = () => {
   const [menu, setMenu] = useState("home");
 
   return (
     <div className='navbar'>
-      <div className='nav-logo'>
-        <Image src={logo} alt="Logo" width={50} height={50} />
-        <p>GYM FITNESS</p>
-      </div>
+      	<div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
+			<Link href="/" className="flex items-center justify-center lg:justify-start gap-2">
+				<FontAwesomeIcon icon={faDumbbell} className="w-12 h-12 text-[#f97000]" transform={{rotate:45}}/>
+				<span className="hidden lg:block font-bold text-center text-sm">ANH EM FREE FIRE SỐNG DAI NHƯ QUỶ</span>
+			</Link>
+		</div>
       <ul className='nav-menu'>
         <li onClick={() => setMenu("home")}>
           <Link href="/">Home</Link>
