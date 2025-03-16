@@ -3,10 +3,14 @@
     display: flex;
     flex-direction: column;
     margin: auto;
-    margin-top: 200px;
+    max-width: 90%; /* Giữ cho phù hợp với màn hình nhỏ */
     width: 600px;
+    height: 90vh; /* Đảm bảo nó không chiếm toàn bộ màn hình */
     background: #fff;
-    padding-bottom: 30px;
+    padding: 20px;
+    border-radius: 12px; /* Bo tròn góc */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ */
+    overflow: hidden; /* Tránh nội dung tràn ra */
 }
 
 .header {

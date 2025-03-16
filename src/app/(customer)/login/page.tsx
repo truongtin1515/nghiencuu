@@ -2,7 +2,7 @@ import LoginSignup from "@/app/components/LoginSignup";
 
 const LoginPage = () => {
   return (
-    <div className=''>
+    <div className='flex justify-center items-center'>
       <LoginSignup />
     </div>
   );

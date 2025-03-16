@@ -12,7 +12,7 @@ import ThemeToggle from './toggleTheme';
 const Navbar = () => {
   const [menu, setMenu] = useState("home");
   const [theme, setTheme] = useState(() => 
-    typeof window !== "undefined" ? localStorage.getItem("theme") || "mylight" : "mylight"
+    typeof window !== "undefined" ? localStorage.getItem("theme") || "mylight" : "mydark"
   );
 
   useEffect(() => {
@@ -25,6 +25,7 @@ const Navbar = () => {
 
     return () => observer.disconnect();
   }, []);
+  
   return (
     <div className='navbar'>
       <div className='nav-logo'>
@@ -58,7 +59,7 @@ const Navbar = () => {
         <Link href="/login">
           <button>Login</button>
         </Link>
-        <Link href="/shop">
+        <Link href="/shoppingcart/productlist">
           <Image 
             src={cart_icon} 
             alt="Cart" 

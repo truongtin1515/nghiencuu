@@ -34,7 +34,7 @@ const RegisterClass = () => {
 		<div className="w-[40%] h-full flex flex-col justify-center ml-[5%]">
 		    <div className="flex justify-start items-center gap-2">
 			    <h3>Số tháng:</h3>
-		        <div className="border border-white">
+		        <div className="">
 					<QuantitySelector defaultValue={1} onValueChange={handleMonthsChange} />
 				</div>
 			</div>
