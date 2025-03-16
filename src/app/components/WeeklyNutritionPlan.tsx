@@ -11,7 +11,7 @@ const WeeklyNutritionPlan = () => {
           <h2 className="text-xl font-bold mb-2">{plan.name}</h2>
           <table className="w-full border-collapse border border-gray-300 ">
             <thead>
-              <tr className="bg-accent">
+              <tr className="bg-gray-700 text-white">
                 <th className="border border-gray-300 p-2">Ngày / Bữa</th>
                 <th className="border border-gray-300 p-2">Thực đơn</th>
               </tr>
@@ -20,12 +20,12 @@ const WeeklyNutritionPlan = () => {
               {plan.schedule.map((day) => (
                 <React.Fragment key={day.day}>
                   <tr className="bg-base-300">
-                    <td className="border border-gray-300 p-2 font-semibold hover:bg-secondary" colSpan={2}>
+                    <td className="border border-gray-300 p-2 font-semibold hover:bg-gray-400" colSpan={2}>
                       {day.day}
                     </td>
                   </tr>
                   {day.meals.map((meal) => (
-                    <tr key={meal.name} className="hover:bg-secondary">
+                    <tr key={meal.name} className="hover:bg-gray-400">
                       <td className="border border-gray-300 p-2">{meal.name}</td>
                       <td className="border border-gray-300 p-2">{meal.food}</td>
                     </tr>

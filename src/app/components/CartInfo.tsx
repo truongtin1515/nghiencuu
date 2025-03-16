@@ -18,19 +18,43 @@ const initialCart: CartItem[] = [
   {
     id: 1,
     name: "Chuột Gaming Không Dây Attack Shark X11",
-    image: "mouse.jpg",
+    image: "/images/123.jpg",
     price: 499000,
     quantity: 1,
     category: "X11 Trắng dock",
   },
   {
     id: 2,
-    name: "Chuột Gaming Không Dây Attack Shark X11 (Đen dock sạc)",
-    image: "mouse_black.jpg",
+    name: "Chuột Gaming Không Dây Attack Shark X11 ",
+    image: "/images/123.jpg",
     price: 499000,
     quantity: 1,
     category: "X11 Đen dock sạc",
     outOfStock: true,
+  },
+  {
+    id: 3,
+    name: "Chuột Gaming Không Dây Attack Shark X11",
+    image: "/images/123.jpg",
+    price: 499000,
+    quantity: 1,
+    category: "X11 Trắng dock",
+  },
+  {
+    id: 44,
+    name: "Chuột Gaming Không Dây Attack Shark X11",
+    image: "/images/123.jpg",
+    price: 499000,
+    quantity: 1,
+    category: "X11 Trắng dock",
+  },
+  {
+    id: 5,
+    name: "Chuột Gaming Không Dây Attack Shark X11",
+    image: "/images/123.jpg",
+    price: 499000,
+    quantity: 1,
+    category: "X11 Trắng dock",
   },
 ];
 
@@ -50,10 +74,10 @@ export default function ShoppingCart() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 bg-white shadow-lg rounded-lg">
+    <div className="max-w-3xl mx-auto p-4 bg-base-300 shadow-lg rounded-lg">
       <h2 className="text-xl font-bold mb-4">Giỏ Hàng</h2>
       {cart.map((item) => (
-		<div key={item.id} className="mb-4 border p-2 flex items-center gap-4 rounded-lg shadow-sm">
+		<div key={item.id} className="mb-4 border border-base-content p-2 flex items-center gap-4 rounded-lg shadow-sm">
 			<div className="">
 			<img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
 			</div>
@@ -71,7 +95,7 @@ export default function ShoppingCart() {
 				</div>
 			</div>
 			<button 
-			className="p-2 bg-red-500 rounded hover:bg-red-600"
+			className="p-2 bg-error rounded hover:bg-red-600"
 			onClick={() => removeItem(item.id)}
 			>
 			❌

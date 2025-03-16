@@ -21,7 +21,7 @@ export default function RootLayout({
         className={inter.className}
       >
         <div className="">
-          <nav className="sticky top-0 bg-base-100">
+          <nav className="sticky top-0 bg-base-100 z-50">
             <Navbar />
           </nav>
           <main>
