@@ -21,8 +21,12 @@ export default function RootLayout({
         className={inter.className}
       >
         <div className="">
-          <Navbar />
-          {children}
+          <nav className="sticky top-0 bg-base-100">
+            <Navbar />
+          </nav>
+          <main>
+            {children}
+          </main>
         </div>
       </body>
     </html>

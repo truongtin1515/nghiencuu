@@ -31,7 +31,7 @@ const GymPayment: React.FC = () => {
 
   return (
     <motion.div className="max-w-lg mx-auto p-6 " initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="rounded-2xl shadow-lg p-6 bg-secondary ">
+      <div className="rounded-2xl shadow-lg p-6 bg-base-300 ">
         <div>
           <h2 className="text-xl font-bold mb-4">Đăng Ký Gói Tập Gym</h2>
           <form onSubmit={handleSubmit}>

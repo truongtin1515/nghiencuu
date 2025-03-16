@@ -1,6 +1,7 @@
 "use client"; 
 
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import logo from '../components/Assets/logo.png'
@@ -10,6 +11,20 @@ import ThemeToggle from './toggleTheme';
 
 const Navbar = () => {
   const [menu, setMenu] = useState("home");
+  const [theme, setTheme] = useState(() => 
+    typeof window !== "undefined" ? localStorage.getItem("theme") || "mylight" : "mylight"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const newTheme = document.documentElement.getAttribute("data-theme")?? "mylight";
+      setTheme(newTheme);
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+
+    return () => observer.disconnect();
+  }, []);
   return (
     <div className='navbar'>
       <div className='nav-logo'>
@@ -44,11 +59,17 @@ const Navbar = () => {
           <button>Login</button>
         </Link>
         <Link href="/shop">
-          <Image src={cart_icon} alt="Cart" width={30} height={30} className="brightness-0 invert" />
+          <Image 
+            src={cart_icon} 
+            alt="Cart" 
+            width={30} 
+            height={30} 
+            className={theme === "mydark" ? "brightness-0 invert" : "brightness-0"}
+          />
         </Link>
-        <div className="nav-cart-count">0</div>
+          <div className="nav-cart-count">0</div>
+        </div>
       </div>
-    </div>
   );
 };
 
