@@ -1,6 +1,6 @@
 import { role } from "../lib/data";
 import Link from "next/link";
-import { faAddressCard, faCalendarDay, faChartLine, faComment, faFileWaveform, faGear, faHouse, faIdBadge, faRightFromBracket, faStar, faTicket, faUser, faUsersLine } from "@fortawesome/free-solid-svg-icons";
+import { faAddressCard, faCalendarDay, faChartLine, faComment, faFileWaveform, faGear, faHouse, faIdBadge, faPersonChalkboard, faRightFromBracket, faStar, faTicket, faUser, faUsersLine } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faNutritionix } from "@fortawesome/free-brands-svg-icons";
 
@@ -19,6 +19,12 @@ const menuItems = [
           label: "User",//quản lý các tài khoản truy cập
           href: "/listManagement/user",
           visible: ["admin"],
+        },
+        {
+          icon: faPersonChalkboard,
+          label: "Trainer",//quản lý các tài khoản truy cập
+          href: "/listManagement/trainer",
+          visible: ["admin", "trainer"],
         },
         {
           icon: faCalendarDay,
@@ -68,22 +74,24 @@ const menuItems = [
   
 
   const Menu = () => {
-    const currentRole = "admin";
+    const currentRole = role;
     return (
       <div className="mt-4 text-sm ">
         {menuItems.map((i) => (
-          <div className="flex flex-col gap-2" key={i.title}>
+          <div className="flex flex-col gap-2 " key={i.title}>
             {i.items.map((item) => {
               if (item.visible.includes(currentRole)) {
                 return (
                   <Link
                     href={item.href}
                     key={item.label}
-                    className="flex items-center justify-center lg:justify-start gap-4 py-2 md:px-2 rounded-md bg-gradient-to from-brown-red to-bright-orange hover:bg-gradient-to-r"
+                    className="flex items-center justify-center lg:justify-start gap-4 py-2 md:px-2 rounded-md bg-gradient-to from-brown-red to-bright-orange hover:bg-gradient-to-r "
                   >
                     <FontAwesomeIcon icon={item.icon} className="w-7 h-7" title={item.label} />
                     <span className="hidden lg:block">{item.label}</span>
+                  
                   </Link>
+                  
                 );
               }
             })}
