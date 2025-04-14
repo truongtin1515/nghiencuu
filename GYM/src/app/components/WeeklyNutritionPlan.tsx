@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { menu, role } from "../lib/data";
+import { useState, useEffect } from "react";
+import { role } from "../lib/data";
 import FormModal from "./FormModal";
 import TableSearch from "./TableSearch";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,7 +8,34 @@ import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
 const WeeklyNutritionPlan = () => {
   const Role = role;
-  const [menuFood, setMenuFood] = useState(menu);
+  const [menuFood, setMenuFood] = useState<any[]>([]);
+
+  // Hàm lấy danh sách thực đơn từ API
+  const fetchMealPlans = async () => {
+    try {
+      const res = await fetch("/api/healthconsultation", {
+        method: "GET",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMenuFood(data);
+      } else {
+        console.error("Lỗi khi lấy danh sách thực đơn");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error);
+    }
+  };
+
+  // Gọi API khi component mount
+  useEffect(() => {
+    fetchMealPlans();
+  }, []);
+
+  // Hàm xử lý khi form thành công (tạo/sửa/xóa)
+  const handleFormSuccess = () => {
+    fetchMealPlans(); // Tải lại danh sách thực đơn
+  };
 
   return (
     <div className="p-6 flex flex-col justify-center items-center">
@@ -19,16 +46,16 @@ const WeeklyNutritionPlan = () => {
             <button className="w-8 h-8 flex items-center justify-center">
               <FontAwesomeIcon icon={faFilter} className="w-5 h-5" />
             </button>
-            <FormModal table="nutrition" type="create" />
+            <FormModal table="nutrition" type="create"  />
           </div>
         )}
       </div>
       {menuFood.map((plan) => (
-        <div key={plan.id} className="mb-8 w-[80%] p-4">
+        <div key={plan.idThucDon} className="mb-8 w-[80%] p-4">
           <div className="flex mr-4">
-          <h2 className="text-xl font-bold mb-2">{plan.name}</h2>
-            <FormModal table="nutrition" type="update" data={plan} />
-            <FormModal table="nutrition" type="delete" id={plan.id} />
+            <h2 className="text-xl font-bold mb-2">{plan.TenThucDon}</h2>
+            <FormModal table="nutrition" type="update" data={plan}  />
+            <FormModal table="nutrition" type="delete" id={plan.idThucDon} onSuccess={handleFormSuccess} />
           </div>
           <table className="w-full border-collapse border border-gray-300">
             <thead>
@@ -38,24 +65,23 @@ const WeeklyNutritionPlan = () => {
               </tr>
             </thead>
             <tbody>
-              {plan.schedule.map((day) => (
+              {plan.chitietthucdon.map((day: any) => (
                 <>
-                  <tr key={day.day} className="bg-base-300">
+                  <tr key={day.idchitietthucdon} className="bg-base-300">
                     <td className="border border-gray-300 p-2 font-semibold hover:bg-gray-400" colSpan={2}>
-                      {day.day}
+                      {new Date(day.Ngay).toLocaleDateString()}
                     </td>
                   </tr>
-                  {day.meals.map((meal) => (
-                    <tr key={meal.name} className="hover:bg-gray-400">
-                      <td className="border border-gray-300 p-2">{meal.name}</td>
-                      <td className="border border-gray-300 p-2">{meal.food}</td>
+                  {day.buaan.map((meal: any) => (
+                    <tr key={meal.idBuaAn} className="hover:bg-gray-400">
+                      <td className="border border-gray-300 p-2">{meal.TenBua}</td>
+                      <td className="border border-gray-300 p-2">{meal.MoTa}</td>
                     </tr>
                   ))}
                 </>
               ))}
             </tbody>
           </table>
-          
         </div>
       ))}
     </div>

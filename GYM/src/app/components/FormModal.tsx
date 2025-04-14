@@ -3,7 +3,7 @@ import { faPenToSquare, faPlus, faTrashCan } from "@fortawesome/free-solid-svg-i
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { JSX, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 
 const UserForm = dynamic(() => import("./forms/UserForm"), { loading: () => <h1>Loading</h1> });
 const WorkoutScheduleForm = dynamic(() => import("./forms/WorkoutScheduleForm"), { loading: () => <h1>Loading</h1> });
@@ -25,21 +25,77 @@ const forms: { [key: string]: (type: "create" | "update", data?: any) => JSX.Ele
 };
 
 const FormModal = ({
-  table, type, data, id,
+  table, type, data, id,onSuccess,
 }: {
   table: "user" | "workoutSchedule" | "nutrition" | "event" | "membership" | "feedback" | "class"|"trainer"|"training";
   type: "create" | "update" | "delete";
   data?: any;
   id?: number;
+  onSuccess?:()=>void;
 }) => {
   const size = type === "create" ? "w-8 h-8" : "w-7 h-7";
   const [open, setOpen] = useState(false);
   const Icon = type === "create" ? faPlus : type === "delete" ? faTrashCan : faPenToSquare;
+  
+  const getApiPath = (table: string) => {
+    switch (table) {
+      case "training":
+        return "TraniningPlans";
+      case "user":
+        return "users";
+      case "trainer":
+        return "trainers";
+      // thêm 
+      default:
+        return table;
+    }
+  };  
+  useEffect(() => {
+    const handleFormSuccess = () => {
+      setOpen(false);
+      onSuccess?.();
+    };
+  
+    window.addEventListener("formSuccess", handleFormSuccess);
+    return () => {
+      window.removeEventListener("formSuccess", handleFormSuccess);
+    };
+  }, []);
   const Form = () => {
+    async function handleDelete(e: React.FormEvent) {
+      e.preventDefault();
+      if (!id) return;
+  
+      try {
+        const res = await fetch(`/api/${getApiPath(table)}/${id}`, {
+          method: "DELETE",
+        });
+  
+        if (res.ok) {
+          alert(`${table} deleted successfully!`);
+          setOpen(false);
+          onSuccess?.();
+          //Thêm
+        } else {
+          const error = await res.json();
+          alert(`Delete failed: ${error.message || "Unknown error"}`);
+        }
+      } catch (err) {
+        alert("Delete failed: " + err);
+      }
+    }
+  
     return type === "delete" && id ? (
-      <form action="" className="p-4 flex flex-col gap-4">
-        <span className="text-center font-medium">All data will be lost. Are you sure you want to delete this {table}?</span>
-        <button className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center">Delete</button>
+      <form onSubmit={handleDelete} className="p-4 flex flex-col gap-4">
+        <span className="text-center font-medium">
+          All data will be lost. Are you sure you want to delete this {table}?
+        </span>
+        <button
+          type="submit"
+          className="bg-red-700 text-white py-2 px-4 rounded-md border-none w-max self-center"
+        >
+          Delete
+        </button>
       </form>
     ) : type === "create" || type === "update" ? (
       forms[table](type, data)
@@ -47,6 +103,7 @@ const FormModal = ({
       "Form not found!"
     );
   };
+ 
   return (
     <>
       <button
