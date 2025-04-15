@@ -90,6 +90,10 @@ const EventDetails: React.FC<EventDetailsProps> = ({ selectedId, events }) => {
 								return (
 									<div key={event.id} id={event.id.toString()} ref={(el) => {
 										eventRefs.current[event.id.toString()] = el
+										if (isActive && el) {
+											el.classList.add("ring", "ring-orange-400");
+											setTimeout(() => el.classList.remove("ring", "ring-orange-400"), 2000);
+										  }
 									}} className={`border rounded p-4 mb-4 ${isActive ? "bg-gradient-to-r from-brown-red to-bright-orange text-white" : "bg-base-100"
 										}`}>
 										<p>

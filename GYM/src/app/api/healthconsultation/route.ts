@@ -30,11 +30,33 @@ export async function GET(req: NextRequest) {
 // Tạo thực đơn mới
 export async function POST(req: NextRequest) {
   try {
-    const { TenThucDon, SoCalo, NgayBatDau, idMaHV, chiTietThucDon } = await req.json();
+    const body = await req.json();
+    console.log("Received body:", body); // Debug dữ liệu nhận được
 
-    if (!TenThucDon || !idMaHV || !NgayBatDau) {
+    const { TenThucDon, SoCalo, NgayBatDau, MaHV, chiTietThucDon } = body;
+
+    // Kiểm tra trường bắt buộc
+    const errors: string[] = [];
+    if (!TenThucDon) errors.push("Tên thực đơn là bắt buộc");
+    if (!MaHV) errors.push("Mã học viên là bắt buộc");
+    if (!NgayBatDau) errors.push("Ngày bắt đầu là bắt buộc");
+
+    if (errors.length > 0) {
+      console.log("Validation errors:", errors); // Debug lỗi
       return NextResponse.json(
-        { error: "Tên thực đơn, mã học viên và ngày bắt đầu là bắt buộc" },
+        { error: errors.join(", ") },
+        { status: 400 }
+      );
+    }
+
+    // Kiểm tra MaHV tồn tại
+    const existingHocVien = await prisma.hocvien.findUnique({
+      where: { idMaHV: MaHV },
+    });
+
+    if (!existingHocVien) {
+      return NextResponse.json(
+        { error: "Mã học viên không tồn tại" },
         { status: 400 }
       );
     }
@@ -44,7 +66,9 @@ export async function POST(req: NextRequest) {
         TenThucDon,
         SoCalo,
         NgayBatDau: new Date(NgayBatDau),
-        idMaHV,
+        hocvien: {
+          connect: { idMaHV: MaHV }, // Kết nối với hocvien
+        },
         chitietthucdon: {
           create: chiTietThucDon?.map((item: any, index: number) => ({
             Ngay: new Date(new Date(NgayBatDau).getTime() + index * 24 * 60 * 60 * 1000),

@@ -41,6 +41,8 @@ const FormModal = ({
     switch (table) {
       case "training":
         return "TraniningPlans";
+        case "nutrition":
+        return "healthconsultation";
       case "user":
         return "users";
       case "trainer":

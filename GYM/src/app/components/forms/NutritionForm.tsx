@@ -9,7 +9,7 @@ const nutritionSchema = z.object({
   TenThucDon: z.string().min(1, "Tên thực đơn không được để trống"),
   SoCalo: z.coerce.number().min(0, "Số calo phải là số không âm"),
   NgayBatDau: z.string().min(1, "Ngày bắt đầu không được để trống"),
-  MaHV: z.coerce.number().min(1, "Mã học viên không hợp lệ"),
+  MaHV: z.coerce.number().min(1, "Mã học viên phải lớn hơn 0"),
   chiTietThucDon: z
     .array(
       z.object({
@@ -40,23 +40,19 @@ export default function NutritionForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     setValue,
     watch,
     reset,
   } = useForm<NutritionFormInput>({
     resolver: zodResolver(nutritionSchema),
+    mode: "onChange",
     defaultValues: {
-
-      TenThucDon: data?.TenThucDon || "",
-
-      SoCalo: data?.SoCalo || 0,
-
-      NgayBatDau: data?.NgayBatDau || new Date().toISOString().split("T")[0],
-
-      MaHV: data?.MaHV || 1,
-
-      chiTietThucDon: data?.chiTietThucDon || [],
+      TenThucDon: "",
+      SoCalo: 0,
+      NgayBatDau: new Date().toISOString().split("T")[0],
+      MaHV: 1,
+      chiTietThucDon: [],
     },
   });
 
@@ -65,49 +61,54 @@ export default function NutritionForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (data) {    
+    console.log("NutritionForm received data:", data);
+    if (data) {
       reset({
         TenThucDon: data.TenThucDon || "",
         SoCalo: data.SoCalo || 0,
-        NgayBatDau: data.NgayBatDau ? new Date(data.NgayBatDau).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        NgayBatDau: data.NgayBatDau
+          ? new Date(data.NgayBatDau).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
         MaHV: data.MaHV || 1,
         chiTietThucDon: data.chiTietThucDon?.map((day) => ({
           idchitietthucdon: day.idchitietthucdon,
-          buaAn: day.buaAn || [],
-        }))||[],
+          buaAn: Array.isArray(day.buaAn)
+            ? day.buaAn.map((meal) => ({
+                idBuaAn: meal.idBuaAn,
+                TenBua: meal.TenBua || "",
+                MoTa: meal.MoTa || "",
+              }))
+            : [],
+        })) || [],
       });
+      console.log("Reset chiTietThucDon:", watch("chiTietThucDon"));
     }
-  }, [data, reset]);
+  }, [data, reset, watch]);
 
   const onSubmit = async (formData: NutritionFormInput) => {
+    console.log("Form data before submit:", formData);
     setIsSubmitting(true);
     try {
-      // Kiểm tra dữ liệu trước khi gửi
-
       if (!formData.TenThucDon || !formData.MaHV || !formData.NgayBatDau) {
-
         throw new Error("Vui lòng điền đầy đủ tên thực đơn, mã học viên và ngày bắt đầu");
-
       }
-
-
-
-      console.log("Submitting data:", formData); // Debug dữ liệu gửi đi
+      const submitData = {
+        ...formData,
+        idThucDon: data?.idThucDon, // Thêm idThucDon vào body
+      };
+      console.log("Submitting data:", submitData);
       const response = await fetch(
         type === "create" ? "/api/healthconsultation" : `/api/healthconsultation/${data?.idThucDon}`,
         {
           method: type === "create" ? "POST" : "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submitData),
         }
       );
 
       if (!response.ok) {
-
         const errorData = await response.json();
-
         throw new Error(errorData.error || "Lỗi khi gửi dữ liệu");
-
       }
 
       alert(`${type === "create" ? "Create" : "Update"} thành công!`);
@@ -117,14 +118,17 @@ export default function NutritionForm({
       }
     } catch (err: any) {
       console.error("Submit error:", err);
-      alert(`Lỗi:${err.message}`);
+      alert(`Lỗi: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const addDay = () => {
-    if (!newDay.buaAn.some((meal) => meal.TenBua && meal.MoTa)) return;
+    if (!newDay.buaAn.some((meal) => meal.TenBua && meal.MoTa)) {
+      alert("Vui lòng điền đầy đủ tên bữa ăn và mô tả");
+      return;
+    }
 
     const currentDays = watch("chiTietThucDon") || [];
     setValue("chiTietThucDon", [...currentDays, { buaAn: newDay.buaAn }]);
@@ -140,7 +144,10 @@ export default function NutritionForm({
   };
 
   const addMeal = () => {
-    if (!newMeal.TenBua || !newMeal.MoTa) return;
+    if (!newMeal.TenBua || !newMeal.MoTa) {
+      alert("Vui lòng điền đầy đủ tên bữa ăn và mô tả");
+      return;
+    }
 
     setNewDay({
       buaAn: [...newDay.buaAn, { TenBua: newMeal.TenBua, MoTa: newMeal.MoTa }],
@@ -160,33 +167,53 @@ export default function NutritionForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-lg max-w-xl mx-auto">
       <div>
         <label className="block mb-1 font-medium">Tên thực đơn</label>
-        <input {...register("TenThucDon")} className="w-full border rounded p-2" />
+        <input
+          {...register("TenThucDon")}
+          className="w-full border rounded p-2"
+          placeholder="Nhập tên thực đơn"
+          required
+        />
         {errors.TenThucDon && <p className="text-red-500 text-sm">{errors.TenThucDon.message}</p>}
       </div>
 
       <div>
         <label className="block mb-1 font-medium">Số calo</label>
-        <input type="number" {...register("SoCalo")} className="w-full border rounded p-2" />
+        <input
+          type="number"
+          {...register("SoCalo")}
+          className="w-full border rounded p-2"
+          placeholder="Nhập số calo"
+          min="0"
+        />
         {errors.SoCalo && <p className="text-red-500 text-sm">{errors.SoCalo.message}</p>}
       </div>
 
       <div>
         <label className="block mb-1 font-medium">Ngày bắt đầu</label>
-        <input type="date" {...register("NgayBatDau")} className="w-full border rounded p-2" />
+        <input
+          type="date"
+          {...register("NgayBatDau")}
+          className="w-full border rounded p-2"
+          required
+        />
         {errors.NgayBatDau && <p className="text-red-500 text-sm">{errors.NgayBatDau.message}</p>}
       </div>
 
       <div>
         <label className="block mb-1 font-medium">Mã học viên</label>
-        <input type="number" {...register("MaHV")} className="w-full border rounded p-2" />
+        <input
+          type="number"
+          {...register("MaHV")}
+          className="w-full border rounded p-2"
+          placeholder="Nhập mã học viên"
+          min="1"
+          required
+        />
         {errors.MaHV && <p className="text-red-500 text-sm">{errors.MaHV.message}</p>}
       </div>
 
-      {/* Chi tiết thực đơn (ngày và bữa ăn) */}
       <div className="mt-6">
         <h3 className="font-semibold mb-2">Chi tiết thực đơn</h3>
-
-        {/* Nhập bữa ăn cho ngày mới */}
         <div className="mb-4">
           <h4 className="font-medium mb-1">Thêm bữa ăn cho ngày mới</h4>
           <div className="flex gap-2 mb-2">
@@ -237,16 +264,17 @@ export default function NutritionForm({
           </button>
         </div>
 
-        {/* Danh sách các ngày đã thêm */}
         <ul className="list-disc pl-5 text-sm text-gray-700">
           {chiTietThucDon.length > 0 ? (
             chiTietThucDon.map((day, dayIdx) => (
               <li key={dayIdx} className="mb-4">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">
-                    Ngày {dayIdx + 1} ({new Date(
-                      new Date(watch("NgayBatDau")).getTime() + dayIdx * 24 * 60 * 60 * 1000
-                    ).toLocaleDateString()})
+                    Ngày {dayIdx + 1} (
+                    {new Date(
+                      new Date(watch("NgayBatDau") || new Date()).getTime() + dayIdx * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString()}
+                    )
                   </span>
                   <button
                     type="button"
@@ -275,7 +303,7 @@ export default function NutritionForm({
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || !isValid}
         className="bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-400"
       >
         {type === "create" ? "Create" : "Update"}

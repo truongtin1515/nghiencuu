@@ -10,7 +10,6 @@ const WeeklyNutritionPlan = () => {
   const Role = role;
   const [menuFood, setMenuFood] = useState<any[]>([]);
 
-  // Hàm lấy danh sách thực đơn từ API
   const fetchMealPlans = async () => {
     try {
       const res = await fetch("/api/healthconsultation", {
@@ -18,6 +17,7 @@ const WeeklyNutritionPlan = () => {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("Fetched meal plans:", data); // Debug
         setMenuFood(data);
       } else {
         console.error("Lỗi khi lấy danh sách thực đơn");
@@ -27,14 +27,12 @@ const WeeklyNutritionPlan = () => {
     }
   };
 
-  // Gọi API khi component mount
   useEffect(() => {
     fetchMealPlans();
   }, []);
 
-  // Hàm xử lý khi form thành công (tạo/sửa/xóa)
   const handleFormSuccess = () => {
-    fetchMealPlans(); // Tải lại danh sách thực đơn
+    fetchMealPlans();
   };
 
   return (
@@ -46,7 +44,7 @@ const WeeklyNutritionPlan = () => {
             <button className="w-8 h-8 flex items-center justify-center">
               <FontAwesomeIcon icon={faFilter} className="w-5 h-5" />
             </button>
-            <FormModal table="nutrition" type="create"  />
+            <FormModal table="nutrition" type="create" onSuccess={handleFormSuccess} />
           </div>
         )}
       </div>
@@ -54,8 +52,36 @@ const WeeklyNutritionPlan = () => {
         <div key={plan.idThucDon} className="mb-8 w-[80%] p-4">
           <div className="flex mr-4">
             <h2 className="text-xl font-bold mb-2">{plan.TenThucDon}</h2>
-            <FormModal table="nutrition" type="update" data={plan}  />
-            <FormModal table="nutrition" type="delete" id={plan.idThucDon} onSuccess={handleFormSuccess} />
+            <FormModal
+              table="nutrition"
+              type="update"
+              data={{
+                idThucDon: plan.idThucDon,
+                TenThucDon: plan.TenThucDon || "",
+                SoCalo: plan.SoCalo || 0,
+                NgayBatDau: plan.NgayBatDau
+                  ? new Date(plan.NgayBatDau).toISOString().split("T")[0]
+                  : "",
+                MaHV: plan.MaHV || 1,
+                chiTietThucDon: plan.chitietthucdon?.map((day: any) => ({
+                  idchitietthucdon: day.idchitietthucdon,
+                  buaAn: Array.isArray(day.buaan)
+                    ? day.buaan.map((meal: any) => ({
+                      idBuaAn: meal.idBuaAn,
+                      TenBua: meal.TenBua || "",
+                      MoTa: meal.MoTa || "",
+                    }))
+                    : [],
+                })) || [],
+              }}
+              onSuccess={handleFormSuccess}
+            />
+            <FormModal
+              table="nutrition"
+              type="delete"
+              id={plan.idThucDon}
+              onSuccess={handleFormSuccess}
+            />
           </div>
           <table className="w-full border-collapse border border-gray-300">
             <thead>
@@ -68,8 +94,16 @@ const WeeklyNutritionPlan = () => {
               {plan.chitietthucdon.map((day: any) => (
                 <>
                   <tr key={day.idchitietthucdon} className="bg-base-300">
-                    <td className="border border-gray-300 p-2 font-semibold hover:bg-gray-400" colSpan={2}>
-                      {new Date(day.Ngay).toLocaleDateString()}
+                    <td
+                      className="border border-gray-300 p-2 font-semibold hover:bg-gray-400"
+                      colSpan={2}
+                    >
+                      {new Date(day.Ngay).toLocaleDateString("vi-VN", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </td>
                   </tr>
                   {day.buaan.map((meal: any) => (
